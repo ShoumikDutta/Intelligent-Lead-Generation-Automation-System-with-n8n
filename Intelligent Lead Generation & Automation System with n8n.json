@@ -1,0 +1,677 @@
+{
+  "name": "# LEADER",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Lead Machine",
+        "formDescription": "Provide the Info Below",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Business Type",
+              "placeholder": "e.g. Plumber",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Location",
+              "placeholder": "e.g. Rome, Italy",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Lead Number",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email Style",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Friendly"
+                  },
+                  {
+                    "option": "Professional"
+                  },
+                  {
+                    "option": "Simple"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "GO 🚀"
+        }
+      },
+      "id": "49a75edf-736f-4054-aea8-8a24c159f27b",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        432,
+        336
+      ],
+      "webhookId": "2ef0c938-f117-4f6c-840a-b2dc35a615b3",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "url": "APIFY_API_KEY",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"includeWebResults\": false,\n    \"language\": \"en\",\n    \"locationQuery\": \"{{ $json.Location }}\",\n    \"maxCrawledPlacesPerSearch\": {{ $json['Lead Number'] }},\n    \"maxImages\": 0,\n    \"maximumLeadsEnrichmentRecords\": 0,\n    \"scrapeContacts\": false,\n    \"scrapeDirectories\": false,\n    \"scrapeImageAuthors\": false,\n    \"scrapePlaceDetailPage\": false,\n    \"scrapeReviewsPersonalData\": true,\n    \"scrapeTableReservationProvider\": false,\n    \"searchStringsArray\": [\n        \"{{ $json['Business Type'] }}\"\n    ],\n    \"skipClosedPlaces\": false\n}",
+        "options": {}
+      },
+      "id": "2294be1e-b7e7-437a-ba31-322bf4c7065f",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        688,
+        336
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "text": "=Website: {{ $json.website }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Email Address",
+              "description": "=find out the best only one email address from the website after scraping the website. The mail address have to be in ideal format.",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "571cd0ce-4578-4e7a-8a92-647ef4662d3b",
+      "name": "Information Extractor",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        256,
+        672
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "0906e21a-0958-433e-b400-8694915ef3c9",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.website }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f1cc441c-8138-4038-a5bf-b243f830d2ea",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        944,
+        336
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        672
+      ],
+      "id": "1c70d7e5-a879-40c2-86c4-0a5bf289ded9",
+      "name": "Wait1",
+      "webhookId": "910e2f28-8e24-43a1-8937-d074641cfc3a"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        336,
+        864
+      ],
+      "id": "2832d20b-24bc-4eb0-9e69-2f3134ddd19f",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "JKptzabuqj44sOC1",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['EMAIL ID'] }}",
+        "subject": "Can I help you turn IT from a cost center into a growth engine?",
+        "emailType": "text",
+        "message": "=Hi {{ $('Filter').item.json.title }},\n\nI’ve been following your firm and noticed the impressive work you’re doing in IT services for your clients. It made me wonder: how much more revenue and efficiency could you unlock with a partner focused purely on automation, AI, and reliability behind the scenes?\n\nI run Automate Minds, where I help IT service providers:\n\nAutomate repetitive workflows to reduce delivery time and errors\n\nIntegrate AI/ML into existing offerings to create higher-value services\n\nBuild scalable, documented systems so your team can focus on high-impact work\n\nIf you’re open to it, I’d love to share 2–3 specific ideas tailored to your current service stack that you could implement in the next 30 days.\n\nWould you be available for a quick 15-minute call sometime this week or next?\nYou can pick a time that suits you here: LINK or just reply with a suitable slot.\n\nBest regards,\nPrathmesh Lohar.\nFounder - Automate Minds\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        672
+      ],
+      "id": "4fc714a8-04eb-42ba-bd55-01c85358e7b3",
+      "name": "Send a message1",
+      "webhookId": "60e6e808-f7f2-4ae1-ac0b-ed20c141de10",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "F9uPeo2jYnNpdbLo",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1R706zSxy-aEFvSRs5qzFq0x7hrTU3G5hSp1MOIGL9_E",
+          "mode": "list",
+          "cachedResultName": "n8n Test",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R706zSxy-aEFvSRs5qzFq0x7hrTU3G5hSp1MOIGL9_E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R706zSxy-aEFvSRs5qzFq0x7hrTU3G5hSp1MOIGL9_E/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "EMAIL ID": "={{ $json.output['Email Address'] }}"
+          },
+          "matchingColumns": [
+            "output"
+          ],
+          "schema": [
+            {
+              "id": "EMAIL ID",
+              "displayName": "EMAIL ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "e3f168e5-4330-4ee7-ba4e-52df7d58f120",
+      "name": "Append row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        896,
+        672
+      ],
+      "typeVersion": 4.6,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "c200rrtAaPR7NVIt",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "LEAD GENERATIION AGENT\n",
+        "height": 800,
+        "width": 1616,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        272
+      ],
+      "typeVersion": 1,
+      "id": "06ecc131-8b61-4815-8135-0422e18818ee",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "Business Type": "IT Services",
+          "Location": "india",
+          "Lead Number": 5,
+          "Email Style": "Professional",
+          "submittedAt": "2025-12-13T07:04:37.662-05:00",
+          "formMode": "test"
+        }
+      }
+    ],
+    "Append row in sheet": [
+      {
+        "json": {
+          "EMAIL ID": "info@vts-e.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@monkengineers.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@monknasik.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@yudo.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@raylogic.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@techwellindustry.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@hrita.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@sawantgroup.co.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@aryanautomation.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@aksmtechnologies.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@greycats.tech"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@eotipl.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@betacomp.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "contact@gurudeo.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@bfssmarthomes.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@technostars.co.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@ontimems.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@intellivilla.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@pptsindia.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@electroera.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@wastechpro.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@brainmachineai.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@nagpurautomation.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@mytek.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@itlprosolutions.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@fivesdigital.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@aim-hitech.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@techandtraining.biz"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@csinc.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@iconresources.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "m0.sin.innovation@gmail.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@officeaids.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "saigauravcomputers@brands.live"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@ariss.io"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@sidhivinayakk.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@sintileeit.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@helea.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@itsoji.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@symmetricits.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@nexusautomations.co.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@akuracy.org"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@etisone.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@spreadtechnologies.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@PratyushEnterprises.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "hello@thynkdigital.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@wynbee.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@prayas-academy.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@woobblr.co.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@techkisan.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@kjftech.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "office@kytes.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@trueinet.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@timinfotech.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "saiservices@facebook.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@codnowtechnologies.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@deyenterprises.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@digighar66.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@phalkeinfotech.com"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@appex.co.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "info@playtechnologies.in"
+        }
+      },
+      {
+        "json": {
+          "EMAIL ID": "ajaypandule@gmail.com"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "2b4ea105-841f-43f1-9d64-6fa31a964afe",
+  "meta": {
+    "templateId": "7423",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4d91907d83d86550936b489c1941a8c5487ea628c7cc3c866e9e008effeff2ba"
+  },
+  "id": "u3U6b6kGsNz4XJBM",
+  "tags": []
+}
