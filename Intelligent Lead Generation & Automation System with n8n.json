@@ -1,5 +1,5 @@
 {
-  "name": "# LEADER",
+  "name": "B2B Lead Research and Outreach Automation",
   "nodes": [
     {
       "parameters": {
@@ -43,7 +43,7 @@
         },
         "options": {
           "appendAttribution": false,
-          "buttonLabel": "GO 🚀"
+          "buttonLabel": "GO "
         }
       },
       "id": "49a75edf-736f-4054-aea8-8a24c159f27b",
@@ -53,19 +53,18 @@
         432,
         336
       ],
-      "webhookId": "2ef0c938-f117-4f6c-840a-b2dc35a615b3",
       "typeVersion": 2.2
     },
     {
       "parameters": {
-        "url": "APIFY_API_KEY",
+        "url": "=https://api.apify.com/v2/acts/YOUR_APIFY_ACTOR_ID/run-sync-get-dataset-items?token={{ $env.APIFY_API_TOKEN }}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n    \"includeWebResults\": false,\n    \"language\": \"en\",\n    \"locationQuery\": \"{{ $json.Location }}\",\n    \"maxCrawledPlacesPerSearch\": {{ $json['Lead Number'] }},\n    \"maxImages\": 0,\n    \"maximumLeadsEnrichmentRecords\": 0,\n    \"scrapeContacts\": false,\n    \"scrapeDirectories\": false,\n    \"scrapeImageAuthors\": false,\n    \"scrapePlaceDetailPage\": false,\n    \"scrapeReviewsPersonalData\": true,\n    \"scrapeTableReservationProvider\": false,\n    \"searchStringsArray\": [\n        \"{{ $json['Business Type'] }}\"\n    ],\n    \"skipClosedPlaces\": false\n}",
         "options": {}
       },
       "id": "2294be1e-b7e7-437a-ba31-322bf4c7065f",
-      "name": "HTTP Request",
+      "name": "Run Apify Google Places Actor",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
         688,
@@ -122,7 +121,7 @@
         "options": {}
       },
       "id": "f1cc441c-8138-4038-a5bf-b243f830d2ea",
-      "name": "Filter",
+      "name": "Keep Leads With Website",
       "type": "n8n-nodes-base.filter",
       "position": [
         944,
@@ -141,8 +140,7 @@
         672
       ],
       "id": "1c70d7e5-a879-40c2-86c4-0a5bf289ded9",
-      "name": "Wait1",
-      "webhookId": "910e2f28-8e24-43a1-8937-d074641cfc3a"
+      "name": "Rate Limit Delay"
     },
     {
       "parameters": {
@@ -156,20 +154,14 @@
         864
       ],
       "id": "2832d20b-24bc-4eb0-9e69-2f3134ddd19f",
-      "name": "OpenRouter Chat Model",
-      "credentials": {
-        "openRouterApi": {
-          "id": "JKptzabuqj44sOC1",
-          "name": "OpenRouter account"
-        }
-      }
+      "name": "OpenRouter Model"
     },
     {
       "parameters": {
         "sendTo": "={{ $json['EMAIL ID'] }}",
-        "subject": "Can I help you turn IT from a cost center into a growth engine?",
+        "subject": "=A quick idea for {{ $('Keep Leads With Website').item.json.title || 'your team' }}",
         "emailType": "text",
-        "message": "=Hi {{ $('Filter').item.json.title }},\n\nI’ve been following your firm and noticed the impressive work you’re doing in IT services for your clients. It made me wonder: how much more revenue and efficiency could you unlock with a partner focused purely on automation, AI, and reliability behind the scenes?\n\nI run Automate Minds, where I help IT service providers:\n\nAutomate repetitive workflows to reduce delivery time and errors\n\nIntegrate AI/ML into existing offerings to create higher-value services\n\nBuild scalable, documented systems so your team can focus on high-impact work\n\nIf you’re open to it, I’d love to share 2–3 specific ideas tailored to your current service stack that you could implement in the next 30 days.\n\nWould you be available for a quick 15-minute call sometime this week or next?\nYou can pick a time that suits you here: LINK or just reply with a suitable slot.\n\nBest regards,\nPrathmesh Lohar.\nFounder - Automate Minds\n",
+        "message": "=Hi {{ $('Keep Leads With Website').item.json.title || 'there' }},\n\n{{ $('On form submission').first().json['Email Style'] === 'Friendly' ? 'I came across your company while researching businesses in your market and thought I would reach out.' : $('On form submission').first().json['Email Style'] === 'Simple' ? 'I found your company while researching businesses in your market.' : 'I came across your company while researching businesses in your market and wanted to introduce myself.' }}\n\nI help B2B teams reduce repetitive work through practical automation, reliable integrations, and AI-supported workflows.\n\nBased on your public information, I would be happy to share a few relevant automation ideas for your current processes.\n\nWould a brief 15-minute conversation be useful?\n\nBest regards,\n[YOUR NAME]\n[YOUR ROLE / COMPANY]\n[YOUR BOOKING LINK]",
         "options": {
           "appendAttribution": false
         }
@@ -181,31 +173,20 @@
         672
       ],
       "id": "4fc714a8-04eb-42ba-bd55-01c85358e7b3",
-      "name": "Send a message1",
-      "webhookId": "60e6e808-f7f2-4ae1-ac0b-ed20c141de10",
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "F9uPeo2jYnNpdbLo",
-          "name": "Gmail account"
-        }
-      }
+      "name": "Send Outreach Email"
     },
     {
       "parameters": {
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1R706zSxy-aEFvSRs5qzFq0x7hrTU3G5hSp1MOIGL9_E",
-          "mode": "list",
-          "cachedResultName": "n8n Test",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R706zSxy-aEFvSRs5qzFq0x7hrTU3G5hSp1MOIGL9_E/edit?usp=drivesdk"
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R706zSxy-aEFvSRs5qzFq0x7hrTU3G5hSp1MOIGL9_E/edit#gid=0"
+          "value": "Leads",
+          "mode": "name"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -233,23 +214,17 @@
         "options": {}
       },
       "id": "e3f168e5-4330-4ee7-ba4e-52df7d58f120",
-      "name": "Append row in sheet",
+      "name": "Append Lead to Google Sheet",
       "type": "n8n-nodes-base.googleSheets",
       "position": [
         896,
         672
       ],
-      "typeVersion": 4.6,
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "c200rrtAaPR7NVIt",
-          "name": "Google Sheets account"
-        }
-      }
+      "typeVersion": 4.6
     },
     {
       "parameters": {
-        "content": "LEAD GENERATIION AGENT\n",
+        "content": "B2B LEAD RESEARCH & OUTREACH AUTOMATION\n\nSetup before use:\n1. Set APIFY_API_TOKEN as an n8n environment variable.\n2. Replace YOUR_APIFY_ACTOR_ID with the selected Apify actor ID.\n3. Connect OpenRouter, Google Sheets, and Gmail credentials in n8n.\n4. Replace YOUR_GOOGLE_SHEET_ID and confirm the sheet name.\n5. Replace sender placeholders in the Gmail node.\n6. Test with synthetic data before enabling the workflow.\n\nImportant: Review applicable privacy, anti-spam, and platform rules before contacting leads.",
         "height": 800,
         "width": 1616,
         "color": 3
@@ -264,329 +239,8 @@
       "name": "Sticky Note"
     }
   ],
-  "pinData": {
-    "On form submission": [
-      {
-        "json": {
-          "Business Type": "IT Services",
-          "Location": "india",
-          "Lead Number": 5,
-          "Email Style": "Professional",
-          "submittedAt": "2025-12-13T07:04:37.662-05:00",
-          "formMode": "test"
-        }
-      }
-    ],
-    "Append row in sheet": [
-      {
-        "json": {
-          "EMAIL ID": "info@vts-e.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@monkengineers.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@monknasik.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@yudo.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@raylogic.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@techwellindustry.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@hrita.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@sawantgroup.co.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@aryanautomation.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@aksmtechnologies.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@greycats.tech"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@eotipl.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@betacomp.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "contact@gurudeo.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@bfssmarthomes.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@technostars.co.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@ontimems.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@intellivilla.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@pptsindia.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@electroera.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@wastechpro.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@brainmachineai.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@nagpurautomation.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@mytek.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@itlprosolutions.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@fivesdigital.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@aim-hitech.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@techandtraining.biz"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@csinc.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@iconresources.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "m0.sin.innovation@gmail.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@officeaids.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "saigauravcomputers@brands.live"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@ariss.io"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@sidhivinayakk.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@sintileeit.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@helea.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@itsoji.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@symmetricits.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@nexusautomations.co.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@akuracy.org"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@etisone.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@spreadtechnologies.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@PratyushEnterprises.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "hello@thynkdigital.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@wynbee.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@prayas-academy.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@woobblr.co.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@techkisan.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@kjftech.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "office@kytes.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@trueinet.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@timinfotech.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "saiservices@facebook.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@codnowtechnologies.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@deyenterprises.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@digighar66.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@phalkeinfotech.com"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@appex.co.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "info@playtechnologies.in"
-        }
-      },
-      {
-        "json": {
-          "EMAIL ID": "ajaypandule@gmail.com"
-        }
-      }
-    ]
-  },
   "connections": {
-    "Filter": {
+    "Keep Leads With Website": {
       "main": [
         [
           {
@@ -597,11 +251,11 @@
         ]
       ]
     },
-    "HTTP Request": {
+    "Run Apify Google Places Actor": {
       "main": [
         [
           {
-            "node": "Filter",
+            "node": "Keep Leads With Website",
             "type": "main",
             "index": 0
           }
@@ -612,7 +266,7 @@
       "main": [
         [
           {
-            "node": "HTTP Request",
+            "node": "Run Apify Google Places Actor",
             "type": "main",
             "index": 0
           }
@@ -623,25 +277,25 @@
       "main": [
         [
           {
-            "node": "Wait1",
+            "node": "Rate Limit Delay",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Wait1": {
+    "Rate Limit Delay": {
       "main": [
         [
           {
-            "node": "Append row in sheet",
+            "node": "Append Lead to Google Sheet",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "OpenRouter Chat Model": {
+    "OpenRouter Model": {
       "ai_languageModel": [
         [
           {
@@ -652,11 +306,11 @@
         ]
       ]
     },
-    "Append row in sheet": {
+    "Append Lead to Google Sheet": {
       "main": [
         [
           {
-            "node": "Send a message1",
+            "node": "Send Outreach Email",
             "type": "main",
             "index": 0
           }
@@ -664,14 +318,9 @@
       ]
     }
   },
-  "active": true,
-  "settings": {},
-  "versionId": "2b4ea105-841f-43f1-9d64-6fa31a964afe",
-  "meta": {
-    "templateId": "7423",
-    "templateCredsSetupCompleted": true,
-    "instanceId": "4d91907d83d86550936b489c1941a8c5487ea628c7cc3c866e9e008effeff2ba"
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
   },
-  "id": "u3U6b6kGsNz4XJBM",
   "tags": []
 }
