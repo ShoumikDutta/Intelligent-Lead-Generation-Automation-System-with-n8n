@@ -216,7 +216,7 @@ You need to configure the following credentials in your own n8n instance:
 * Google Sheets OAuth credentials
 * Gmail OAuth credentials
 
-Do not commit real API keys, credential IDs, OAuth tokens, or private spreadsheet links to GitHub.
+
 
 ---
 
@@ -232,53 +232,7 @@ OpenRouter credentials
 Calendar or booking link inside the email body
 ```
 
----
 
-### 5. Test the workflow
-
-Use test input such as:
-
-```text
-Business Type: IT Services
-Location: India
-Lead Number: 5
-Email Style: Professional
-```
-
-Then check:
-
-* Whether leads are returned
-* Whether websites are detected
-* Whether email addresses are extracted correctly
-* Whether rows are added to Google Sheets
-* Whether the Gmail node sends the email as expected
-
----
-
-## Security Notes
-
-Before publishing this project publicly, make sure to remove or replace:
-
-* Real API keys
-* OAuth credential IDs
-* Gmail account details
-* Google Sheet IDs
-* Private spreadsheet URLs
-* Personal email addresses
-* Production webhook URLs
-* Any real customer or lead data
-
-For public GitHub repositories, use placeholders such as:
-
-```text
-YOUR_APIFY_API_KEY
-YOUR_OPENROUTER_CREDENTIAL
-YOUR_GOOGLE_SHEET_ID
-YOUR_GMAIL_CREDENTIAL
-YOUR_BOOKING_LINK
-```
-
----
 
 ## Possible Improvements
 
@@ -286,7 +240,6 @@ Future improvements could include:
 
 * Adding duplicate lead detection
 * Adding email validation before outreach
-* Adding a human approval step before sending emails
 * Supporting multiple email templates
 * Generating personalized email content using the selected email style
 * Adding CRM integration such as HubSpot, Salesforce, or Dynamics 365
